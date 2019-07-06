@@ -1,4 +1,4 @@
-module WikimediaCommonsApi (getRandomImageResources, Error(..), ImageResource) where
+module WikimediaCommonsApi (getRandomImageResources, Error(..), ImageResource, pUrlTemplate, UrlTemplate) where
 
 
 import Data.Maybe
@@ -20,9 +20,9 @@ import Data.Typelevel.Num.Reps (D2)
 import Data.Vec (Vec, vec2)
 import Effect.Aff (Aff)
 import Foreign.Object (Object)
-import Text.Parsing.StringParser (Parser, runParser)
+import Text.Parsing.StringParser (Parser, runParser, try)
 import Text.Parsing.StringParser.CodeUnits (alphaNum, anyDigit, char, noneOf, string, anyChar, eof, upperCaseChar, whiteSpace)
-import Text.Parsing.StringParser.Combinators (between, many, sepBy1, manyTill, lookAhead)
+import Text.Parsing.StringParser.Combinators (between, many, sepBy1, many1Till, manyTill, lookAhead)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 
@@ -48,9 +48,8 @@ instance showError :: Show Error where
 
 pUrlTemplate :: Parser UrlTemplate
 pUrlTemplate = ado
-  prefix <- manyTill anyChar (lookAhead $ manyTill anyDigit (string "px"))
-  _ <- manyTill anyDigit (string "px")
-  suffix <- manyTill anyChar eof
+  prefix <- many1Till anyChar (try $ many1Till anyDigit (lookAhead $ string "px"))
+  suffix <- many1Till anyChar eof
   in UrlTemplate
      { prefix : fromCharArray $ Array.fromFoldable prefix
      , suffix : fromCharArray $ Array.fromFoldable suffix
