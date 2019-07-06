@@ -11,6 +11,11 @@ You can edit this file as you like.
     , "sized-vectors"
     , "typelevel"
     , "tuples"
+    , "affjax"
+    , "argonaut"
+    , "aff"
+    , "string-parsers"
+    , "generics-rep"
     ]
 , packages =
     ./packages.dhall
