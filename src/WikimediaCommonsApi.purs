@@ -1,4 +1,4 @@
-module WikimediaCommonsApi (getRandomImageResources, Error(..), ImageResource, pUrlTemplate, UrlTemplate) where
+module WikimediaCommonsApi (getRandomImageResources, Error(..), ImageResource, toUrl) where
 
 
 import Data.Maybe
@@ -16,8 +16,8 @@ import Data.Map (Map, values)
 import Data.Map as Map
 import Data.String.CodeUnits (fromCharArray)
 import Data.Tuple.Nested (type (/\))
-import Data.Typelevel.Num.Reps (D2)
-import Data.Vec (Vec, vec2)
+import Data.Typelevel.Num.Reps (D2, d0)
+import Data.Vec (Vec, vec2, (!!))
 import Effect.Aff (Aff)
 import Foreign.Object (Object)
 import Text.Parsing.StringParser (Parser, runParser, try)
@@ -31,7 +31,16 @@ data ImageResource = ImageResource
     , urlTemplate :: UrlTemplate
     }
 
+toUrl :: Int -> ImageResource -> Maybe String
+toUrl width (ImageResource {maxSize, urlTemplate})
+  | width <= maxSize !! d0 = Just $ resolveUrlTemplate width urlTemplate
+toUrl _ _ = Nothing
+
 data UrlTemplate = UrlTemplate { prefix :: String, suffix :: String }
+
+resolveUrlTemplate :: Int -> UrlTemplate -> String
+resolveUrlTemplate width (UrlTemplate {prefix, suffix}) =
+  prefix <> show width <> suffix
 
 derive instance genericUrlTemplate :: Generic UrlTemplate _
 derive instance genericImageResource :: Generic ImageResource _
