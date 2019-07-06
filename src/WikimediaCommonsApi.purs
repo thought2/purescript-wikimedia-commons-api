@@ -4,6 +4,7 @@ module WikimediaCommonsApi (getRandomImageResources, Error(..), ImageResource) w
 import Data.Maybe
 import Prelude
 
+import Foreign.Object as Object
 import Affjax as Affjax
 import Affjax.ResponseFormat as AffjaxResponseFormat
 import Data.Argonaut (decodeJson, class DecodeJson)
@@ -69,12 +70,12 @@ type ApiResponseImageInfo =
   }
 
 type ApiResponse =
-  { query :: { pages :: Map Int { imageinfo :: Array ApiResponseImageInfo } } }
+  { query :: { pages :: Object { imageinfo :: Array ApiResponseImageInfo } } }
 
 filterApiResponse :: ApiResponse -> Array ImageResource
 filterApiResponse resp =
   resp.query.pages
-    # Map.values
+    # Object.values
     # Array.fromFoldable
     >>= _.imageinfo # Array.mapMaybe mkImageResource
 
